@@ -11,6 +11,7 @@ class Graphics;
 class Resource;
 class Network;
 class Mira;
+class AppInstaller;
 
 class Application
 {
@@ -20,6 +21,7 @@ public:
 	Resource*   Res;
 	Network*    Net;
 	Mira*       Kernel;
+	AppInstaller* AppInst;
 
 	Application();
 	~Application();

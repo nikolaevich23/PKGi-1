@@ -30,7 +30,10 @@
     <ClCompile Include="SourcesView.cpp">
       <Filter>View</Filter>
     </ClCompile>
-    <ClCompile Include="Syscall.cpp">
+    <ClCompile Include="AppInstaller.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Sfo.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -64,7 +67,10 @@
     <ClInclude Include="SourcesView.h">
       <Filter>View</Filter>
     </ClInclude>
-    <ClInclude Include="Syscall.h">
+    <ClInclude Include="AppInstaller.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Sfo.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>

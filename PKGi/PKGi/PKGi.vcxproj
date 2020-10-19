@@ -61,6 +61,7 @@ del /s /q /f $(IntDir)\*.oelf</NMakeCleanCommandLine>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="AppInstaller.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CreditView.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -70,13 +71,14 @@ del /s /q /f $(IntDir)\*.oelf</NMakeCleanCommandLine>
     <ClCompile Include="PackageListView.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="Sfo.cpp" />
     <ClCompile Include="SourcesView.cpp" />
-    <ClCompile Include="Syscall.cpp" />
     <ClCompile Include="TinyJson.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="AppInstaller.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CreditView.h" />
     <ClInclude Include="Graphics.h" />
@@ -84,9 +86,9 @@ del /s /q /f $(IntDir)\*.oelf</NMakeCleanCommandLine>
     <ClInclude Include="PackageListView.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Sfo.h" />
     <ClInclude Include="SourcesView.h" />
     <ClInclude Include="sparse.h" />
-    <ClInclude Include="Syscall.h" />
     <ClInclude Include="TinyJson.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="View.h" />

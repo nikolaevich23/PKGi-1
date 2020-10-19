@@ -1,0 +1,43 @@
+﻿La génération a démarré 19/10/2020 22:31:11.
+     1>Projet "D:\PS4\Homebrew\PKGi\PKGi\PKGi\PKGi.vcxproj" sur le nœud 2 (Build cible(s)).
+     1>Build:
+         call build.bat x64\Debug\ "PKGi" "D:\PS4\Homebrew\PKGi\PKGi\"
+         Un sous-répertoire ou un fichier x64\Debug\ existe déjà.
+         ld.lld: C:\OpenOrbis\PS4Toolchain\link.x
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceLibcInternal.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libc.a
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libkernel.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libc++.a
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceVideoOut.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceGnmDriver.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceSysmodule.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceFreeType.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceHttp.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libScePad.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceUserService.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceSystemService.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceNet.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceHttp.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceSsl.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\lib\crt1.o
+         ld.lld: .\x64\Debug\\\App.o
+         ld.lld: .\x64\Debug\\\AppInstaller.o
+         ld.lld: .\x64\Debug\\\Controller.o
+         ld.lld: .\x64\Debug\\\CreditView.o
+         ld.lld: .\x64\Debug\\\Graphics.o
+         ld.lld: .\x64\Debug\\\main.o
+         ld.lld: .\x64\Debug\\\Mira.o
+         ld.lld: .\x64\Debug\\\Network.o
+         ld.lld: .\x64\Debug\\\PackageListView.o
+         ld.lld: .\x64\Debug\\\Resource.o
+         ld.lld: .\x64\Debug\\\Sfo.o
+         ld.lld: .\x64\Debug\\\SourcesView.o
+         ld.lld: .\x64\Debug\\\Syscall.o
+         ld.lld: .\x64\Debug\\\TinyJson.o
+         ld.lld: .\x64\Debug\\\Utility.o
+                 1 fichier(s) copié(s).
+     1>Génération du projet "D:\PS4\Homebrew\PKGi\PKGi\PKGi\PKGi.vcxproj" terminée (Build cible(s)).
+
+La génération a réussi.
+
+Temps écoulé 00:00:03.21

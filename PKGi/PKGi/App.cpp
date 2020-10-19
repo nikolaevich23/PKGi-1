@@ -5,6 +5,7 @@
 #include "Resource.h"
 #include "Network.h"
 #include "Mira.h"
+#include "AppInstaller.h"
 #include "View.h"
 #include "SourcesView.h"
 #include "PackageListView.h"
@@ -25,6 +26,18 @@ Application::Application() {
 	printf("Initialize Mira");
 	Kernel = new Mira();
 
+	if (Kernel->isAvailable()) {
+		// Mount /data and /system into sandbox
+		Kernel->MountInSandbox("data", "/data", 511);
+		Kernel->MountInSandbox("system", "/system", 511);
+
+		// Change Auth ID by SceShellCore
+		Kernel->ChangeAuthID(SceAuthenticationId::SceShellCore);
+
+		// Initialize the AppInstaller
+		AppInst = new AppInstaller();
+	}
+
 	// Setup the default view
 	printf("Initialize the Main View ...\n");
 
@@ -33,11 +46,17 @@ Application::Application() {
 ;}
 
 Application::~Application() {
+	// Unmount
+	Kernel->UnmountInSandbox("data");
+	Kernel->UnmountInSandbox("system");
+
+	// Cleanup
 	printf("Cleanup Application ...\n");
 	delete Res;
 	delete Graph;
 	delete Ctrl;
 	delete Net;
+	delete AppInst;
 	delete Kernel;
 }
 
@@ -107,12 +126,6 @@ void Application::Run() {
 		ShowFatalReason("Mira is needed.");
 		return;
 	}
-
-	// Mount /data into sandbox
-	Kernel->MountInSandbox("/data", 511);
-
-	// Change Auth ID by SceShellCore
-	Kernel->ChangeAuthID(SceAuthenticationId::SceShellCore);
 
 	// Main Loop
 	while (isRunning)

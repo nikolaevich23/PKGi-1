@@ -9,37 +9,7 @@
 #ifndef MIRA_H
 #define MIRA_H
 
-// Needed for IOCTL Calculation
-#define _IOC_NRBITS        8
-#define _IOC_TYPEBITS        8
-#define _IOC_SIZEBITS        14
-#define _IOC_DIRBITS        2
-#define _IOC_NRMASK        ((1 << _IOC_NRBITS)-1)
-#define _IOC_TYPEMASK        ((1 << _IOC_TYPEBITS)-1)
-#define _IOC_SIZEMASK        ((1 << _IOC_SIZEBITS)-1)
-#define _IOC_DIRMASK        ((1 << _IOC_DIRBITS)-1)
-#define _IOC_NRSHIFT        0
-#define _IOC_TYPESHIFT        (_IOC_NRSHIFT+_IOC_NRBITS)
-#define _IOC_SIZESHIFT        (_IOC_TYPESHIFT+_IOC_TYPEBITS)
-#define _IOC_DIRSHIFT        (_IOC_SIZESHIFT+_IOC_SIZEBITS)
-#define _IOC_NONE        0U
-#define _IOC_WRITE        1U
-#define _IOC_READ        2U
-#define IOC_IN                (_IOC_WRITE << _IOC_DIRSHIFT)
-#define IOC_OUT                (_IOC_READ << _IOC_DIRSHIFT)
-#define IOC_INOUT        ((_IOC_WRITE|_IOC_READ) << _IOC_DIRSHIFT)
-#define IOCSIZE_MASK        (_IOC_SIZEMASK << _IOC_SIZESHIFT)
-#define IOCSIZE_SHIFT        (_IOC_SIZESHIFT)
-
-#define _IOC(dir,type,nr,size) \
-        (((dir)  << _IOC_DIRSHIFT) | \
-         ((type) << _IOC_TYPESHIFT) | \
-         ((nr)   << _IOC_NRSHIFT) | \
-         ((size) << _IOC_SIZESHIFT))
-
-#define COMM_LEN 19 + 13
-#define NAME_LEN 19 + 17
-#define _MAX_PATH 1024
+#define _MAX_PATH 260
 
 typedef enum SceAuthenticationId_t : uint64_t
 {
@@ -113,19 +83,28 @@ typedef struct _MiraMountInSandbox
 {
 	int32_t Permissions;
 	char Path[_MAX_PATH];
+	char Name[50];
 } MiraMountInSandbox;
 
-#define MIRA_MOUNT_IN_SANDBOX _IOC(IOC_IN, MIRA_IOCTL_BASE, 4, sizeof(MiraMountInSandbox))
-#define MIRA_GET_PROC_THREAD_CREDENTIALS _IOC(IOC_INOUT, MIRA_IOCTL_BASE, 1, sizeof(MiraThreadCredentials))
+typedef struct _MiraUnmountInSandbox
+{
+	char Name[50];
+} MiraUnmountInSandbox;
+
+#define MIRA_MOUNT_IN_SANDBOX 0x813C4D04
+#define MIRA_UNMOUNT_IN_SANDBOX 0x813c4d04
+#define MIRA_GET_PROC_THREAD_CREDENTIALS 0xC0704D01
 
 class Mira {
 private:
 	int mira_dev;
+	int(*mira_ioctl)(int, unsigned long, ...);
 public:
 	Mira();
 	~Mira();
 	bool isAvailable();
-	void MountInSandbox(const char* path, int permission);
+	void MountInSandbox(const char* name, const char* path, int permission);
+	void UnmountInSandbox(const char* name);
 	void ChangeAuthID(SceAuthenticationId_t authid);
 };
 

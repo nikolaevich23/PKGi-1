@@ -12,4 +12,5 @@ class Utility
 	public:
 		int CopyFile(char* source, char* destination);
 };
+
 #endif
