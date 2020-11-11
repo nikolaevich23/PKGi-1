@@ -1,7 +1,7 @@
 SETLOCAL EnableDelayedExpansion
 
 Rem Libraries to link in
-set libraries=-lSceLibcInternal -lc -lkernel -lc++  -lSceVideoOut -lSceGnmDriver -lSceSysmodule -lSceFreeType -lSceHttp -lScePad -lSceUserService -lSceSystemService -lSceNet -lSceHttp -lSceSsl
+set libraries=-lSceLibcInternal -lc -lkernel -lc++  -lSceVideoOut -lSceGnmDriver -lSceSysmodule -lSceFreeType -lSceHttp -lScePad -lSceUserService -lSceSystemService -lSceNet -lSceHttp -lSceSsl -lSceBgft -lSceAppInstUtil -lSceImeDialog
 
 Rem Read the script arguments into local vars
 set intdir=%1

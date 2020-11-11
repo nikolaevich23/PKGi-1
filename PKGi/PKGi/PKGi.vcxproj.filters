@@ -36,6 +36,9 @@
     <ClCompile Include="Sfo.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Pkg.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -71,6 +74,12 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Sfo.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Pkg.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,8 @@
 #ifndef PACKAGE_LIST_VIEW_H
 #define PACKAGE_LIST_VIEW_H
 
+#define SEARCH_LEN 255
+
 class Application;
 class PackageListView;
 
@@ -57,9 +59,10 @@ private:
 	int totalPage;
 	int totalPkgCount;
 
-	char searchTerm[255];
+	char searchTerm[SEARCH_LEN];
 	char errorMessage[255];
 	bool onError;
+	bool ErrordontReturn;
 
 	// Fetch animation
 	int fetchStepAnim;
@@ -67,6 +70,7 @@ private:
 
 	static void FetchPackages_Thread(FetchArg* args);
 	void FetchPackages(int page, int line, bool is_up);
-	void ShowError(const char* error);
+	void ShowError(const char* error, bool dontReturn);
+	void ActualiseList(int page);
 };
 #endif

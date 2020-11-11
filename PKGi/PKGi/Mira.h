@@ -105,7 +105,7 @@ public:
 	bool isAvailable();
 	void MountInSandbox(const char* name, const char* path, int permission);
 	void UnmountInSandbox(const char* name);
-	void ChangeAuthID(SceAuthenticationId_t authid);
+	void ChangeAuthID(SceAuthenticationId_t authid, SceCapabilites capab);
 };
 
 #endif

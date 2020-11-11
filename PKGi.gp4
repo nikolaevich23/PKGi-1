@@ -28,6 +28,7 @@
     <file targ_path="Square.png" orig_path="PKGi\Square.png" />
     <file targ_path="Triangle.png" orig_path="PKGi\Triangle.png" />
     <file targ_path="Circle.png" orig_path="PKGi\Circle.png" />
+    <file targ_path="Add.png" orig_path="PKGi\Add.png" />
   </files>
   <rootdir>
     <dir targ_name="sce_module" />

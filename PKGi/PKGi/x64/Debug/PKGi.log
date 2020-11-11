@@ -1,4 +1,4 @@
-﻿La génération a démarré 19/10/2020 22:31:11.
+﻿La génération a démarré 11/11/2020 13:49:28.
      1>Projet "D:\PS4\Homebrew\PKGi\PKGi\PKGi\PKGi.vcxproj" sur le nœud 2 (Build cible(s)).
      1>Build:
          call build.bat x64\Debug\ "PKGi" "D:\PS4\Homebrew\PKGi\PKGi\"
@@ -19,6 +19,9 @@
          ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceNet.so
          ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceHttp.so
          ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceSsl.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceBgft.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceAppInstUtil.so
+         ld.lld: C:\OpenOrbis\PS4Toolchain\\lib\libSceImeDialog.so
          ld.lld: C:\OpenOrbis\PS4Toolchain\lib\crt1.o
          ld.lld: .\x64\Debug\\\App.o
          ld.lld: .\x64\Debug\\\AppInstaller.o
@@ -29,10 +32,10 @@
          ld.lld: .\x64\Debug\\\Mira.o
          ld.lld: .\x64\Debug\\\Network.o
          ld.lld: .\x64\Debug\\\PackageListView.o
+         ld.lld: .\x64\Debug\\\Pkg.o
          ld.lld: .\x64\Debug\\\Resource.o
          ld.lld: .\x64\Debug\\\Sfo.o
          ld.lld: .\x64\Debug\\\SourcesView.o
-         ld.lld: .\x64\Debug\\\Syscall.o
          ld.lld: .\x64\Debug\\\TinyJson.o
          ld.lld: .\x64\Debug\\\Utility.o
                  1 fichier(s) copié(s).
@@ -40,4 +43,4 @@
 
 La génération a réussi.
 
-Temps écoulé 00:00:03.21
+Temps écoulé 00:00:01.25

@@ -5,6 +5,8 @@
 #include "Resource.h"
 #include "Network.h"
 #include "TinyJson.h"
+#include "Utility.h"
+#include "AppInstaller.h"
 
 #include "SourcesView.h"
 
@@ -68,12 +70,14 @@ void PackageListView::DownloadPkgList(int line, int page, char* search, bool is_
 
 	char url[500];
 
-	if (!search){
-		snprintf(url, 500, "%s?do=packages&line=%i&page=%i", source.api_url, line, page);
+	if (strlen(search) <= 0) {
+		snprintf(url, 500, "%s/packages.php?line=%i&page=%i", source.api_url, line, page);
 	}
 	else {
-		snprintf(url, 500, "%s?do=packages&line=%i&page=%i&search=%s", source.api_url, line, page, search);
+		snprintf(url, 500, "%s/packages.php?line=%i&page=%i&search=%s", source.api_url, line, page, search);
 	}
+
+	printf("URL: %s\n", url);
 
 	scePthreadMutexLock(&fetch_mtx);
 	printf("FetchPkgList: Cleanup old data ...\n");
@@ -95,7 +99,7 @@ void PackageListView::DownloadPkgList(int line, int page, char* search, bool is_
 	char* data = (char*)App->Net->GetRequest(url, &data_len);
 	if (!data) {
 		printf("FetchPkgList: Unable to got data from source\n");
-		ShowError("Network Error: Unable to got data from source");
+		ShowError("Network Error: Unable to got data from source", false);
 		scePthreadMutexUnlock(&fetch_mtx);
 		return;
 	}
@@ -106,7 +110,7 @@ void PackageListView::DownloadPkgList(int line, int page, char* search, bool is_
 	json_t const* json = json_create(data, mem, 100);
 	if (!json) {
 		printf("FetchPkgList: Unable to load json\n");
-		ShowError("Network Error: Invalid JSON Format");
+		ShowError("Network Error: Invalid JSON Format", false);
 		scePthreadMutexUnlock(&fetch_mtx);
 		return;
 	}
@@ -115,7 +119,7 @@ void PackageListView::DownloadPkgList(int line, int page, char* search, bool is_
 	json_t const* total = json_getProperty(json, "total");
 	if (!total || JSON_INTEGER != json_getType(total)) {
 		printf("FetchPkgList: Unable to get total number of packages\n");
-		ShowError("Network Error: Total number not found on response");
+		ShowError("Network Error: Total number not found on response", false);
 		scePthreadMutexUnlock(&fetch_mtx);
 		return;
 	}
@@ -137,7 +141,7 @@ void PackageListView::DownloadPkgList(int line, int page, char* search, bool is_
 	json_t const* packagesList = json_getProperty(json, "packages");
 	if (!packagesList || JSON_ARRAY != json_getType(packagesList)) {
 		printf("FetchPkgList: Unable to find the packages list\n.");
-		ShowError("Network Error: Package list not found on response");
+		ShowError("Network Error: Package list not found on response", false);
 		scePthreadMutexUnlock(&fetch_mtx);
 		return;
 	}
@@ -160,7 +164,7 @@ void PackageListView::DownloadPkgList(int line, int page, char* search, bool is_
 	pkgs = (Package*)malloc(pkgNbr * sizeof(Package));
 	if (!pkgs) {
 		printf("FetchPkgList: Unable to malloc packages list !\n");
-		ShowError("Memory Error: Unable to malloc packages list !");
+		ShowError("Memory Error: Unable to malloc packages list !", false);
 
 		pkgNbr = 0;
 		scePthreadMutexUnlock(&fetch_mtx);
@@ -186,9 +190,9 @@ void PackageListView::DownloadPkgList(int line, int page, char* search, bool is_
 			}
 
 			char icon_url[500];
-			snprintf(icon_url, 500, "%s?do=icons&id=%i", source.api_url, pkgs[i].id);
+			snprintf(icon_url, 500, "%s/icons/%i.png", source.api_url, pkgs[i].id);
 
-			printf("FetchPkgList: Downloading icon ... URL: %s\n", icon_url);
+			printf("FetchPkgList: Downloading icon ...\nURL: %s\n", icon_url);
 
 			size_t icon_len = 0;
 			unsigned char* icon_data = (unsigned char*)App->Net->GetRequest(icon_url, &icon_len);
@@ -214,7 +218,6 @@ void PackageListView::DownloadPkgList(int line, int page, char* search, bool is_
 
 	printf("FetchPkgList: Downloaded.\n");
 
-	printf("FetchPkgList: unlocked.\n");
 	scePthreadMutexUnlock(&fetch_mtx);
 }
 
@@ -240,7 +243,8 @@ void PackageListView::FetchPackages(int line, int page, bool is_up) {
 	args->line = line;
 	args->page = page;
 	args->is_up = is_up;
-	strncpy(args->searchTerm, searchTerm, 255);
+
+	strncpy(args->searchTerm, searchTerm, SEARCH_LEN);
 
 	OrbisPthreadAttr attr;
 	scePthreadAttrInit(&attr);
@@ -250,26 +254,47 @@ void PackageListView::FetchPackages(int line, int page, bool is_up) {
 }
 
 // Show a message if error occurs
-void PackageListView::ShowError(const char* error) {
+void PackageListView::ShowError(const char* error, bool dontReturn) {
 	snprintf(errorMessage, sizeof(errorMessage), "%s", error);
 	onError = true;
+	ErrordontReturn = dontReturn;
+}
+
+void PackageListView::ActualiseList(int page) {
+	pkgSelected = 0;
+	FetchPackages(MENU_NBR_PER_PAGE, page, false);
+	onError = false;
 }
 
 int PackageListView::Update() {
 	// If mutex is locked, fetch is in progress
 	if (scePthreadMutexTrylock(&fetch_mtx) >= 0) {
 		if (App->Ctrl->GetButtonPressed(ORBIS_PAD_BUTTON_CIRCLE)) {
-			SourcesView* src_view = new SourcesView(App);
-			App->ChangeView(src_view);
-			scePthreadMutexUnlock(&fetch_mtx);
-			delete this;
-			return 0;
+			if (ErrordontReturn) {
+				onError = false;
+				ErrordontReturn = false;
+			}
+			else {
+				if (strlen(searchTerm) > 0) {
+					memset(searchTerm, 0, SEARCH_LEN);
+
+					currentPage = 1;
+					totalPage = 0;
+					totalPkgCount = 0;
+					ActualiseList(0);
+				}
+				else {
+					SourcesView* src_view = new SourcesView(App);
+					App->ChangeView(src_view);
+					scePthreadMutexUnlock(&fetch_mtx);
+					delete this;
+					return 0;
+				}
+			}
 		}
 
 		if (App->Ctrl->GetButtonPressed(ORBIS_PAD_BUTTON_SQUARE)) {
-			pkgSelected = 0;
-			FetchPackages(MENU_NBR_PER_PAGE, currentPage, false);
-			onError = false;
+			ActualiseList(currentPage);
 		}
 
 		else {
@@ -292,8 +317,33 @@ int PackageListView::Update() {
 			}
 
 			if (App->Ctrl->GetButtonPressed(ORBIS_PAD_BUTTON_CROSS)) {
-				if (pkgs && pkgSelected >= 0 && pkgs[pkgSelected].callback)
-					pkgs[pkgSelected].callback();
+				if (pkgs && pkgSelected >= 0) {
+					printf("Request download for %s (id: %i)\n", source.api_url, pkgs[pkgSelected].id);
+					int install_err = App->AppInst->RegisterDownload(source.api_url, pkgs[pkgSelected].id);
+					if (install_err < 0) {
+						switch (install_err) {
+							case -7:
+								ShowError("This package is already installed", true);
+								break;
+							default:
+								char nfErr[255] = { 0 };
+								snprintf(nfErr, sizeof(nfErr), "Installation failed (%i)", install_err);
+								ShowError(nfErr, true);
+								break;
+						}
+					}
+				}
+			}
+
+			if (App->Ctrl->GetButtonPressed(ORBIS_PAD_BUTTON_TRIANGLE)) {
+				char* search = Utility::OpenKeyboard(ORBIS_TYPE_DEFAULT, "Enter search keywords.");
+				if (search) {
+					strncpy(searchTerm, search, SEARCH_LEN);
+					free(search);
+
+					// Actualise search
+					ActualiseList(0);
+				}
 			}
 		}
 
@@ -342,10 +392,19 @@ int PackageListView::Render() {
 	// Draw source name
 	FontSize sourceNameSize;
 	App->Graph->setFontSize(App->Res->robotoFont, 54);
-	App->Graph->getTextSize(source.title, App->Res->robotoFont, &sourceNameSize);
-	//App->Graph->drawText(source.title, App->Res->robotoFont, BORDER_X + 120 + BORDER_X, HEADER_SIZE - 40 - sourceNameSize.height, dark, white);
-	App->Graph->drawText(source.title, App->Res->robotoFont, BORDER_X + 120 + BORDER_X, (logo_y + ((120 / 2) - (sourceNameSize.height / 2))), dark, white);
-	
+
+	if (strlen(searchTerm) > 0) {
+		char searchTitle[500];
+		snprintf(searchTitle, sizeof(searchTitle), "Search for: %s", searchTerm);
+
+		App->Graph->getTextSize(searchTitle, App->Res->robotoFont, &sourceNameSize);
+		App->Graph->drawText(searchTitle, App->Res->robotoFont, BORDER_X + 120 + BORDER_X, (logo_y + ((120 / 2) - (sourceNameSize.height / 2))), dark, white);
+	}
+	else {
+		App->Graph->getTextSize(source.title, App->Res->robotoFont, &sourceNameSize);
+		App->Graph->drawText(source.title, App->Res->robotoFont, BORDER_X + 120 + BORDER_X, (logo_y + ((120 / 2) - (sourceNameSize.height / 2))), dark, white);
+	}
+
 	App->Graph->setFontSize(App->Res->robotoFont, DEFAULT_FONT_SIZE);
 
 	// Draw header border
@@ -379,6 +438,10 @@ int PackageListView::Render() {
 		int text_x = ((ScreenWidth / 2) - (progressSize.width / 2));
 		int text_y = ((ScreenHeight / 2) - (progressSize.height / 2));
 		App->Graph->drawText(progress, App->Res->robotoFont, text_x, text_y, dark, white);
+
+		// Draw footer background and border
+		App->Graph->drawRectangle(0, ScreenHeight - FOOTER_SIZE, ScreenWidth, FOOTER_SIZE, dark);
+		App->Graph->drawRectangle(BORDER_X, ScreenHeight - FOOTER_SIZE + 5, ScreenWidth - (BORDER_X * 2), 5, white);
 	}
 	else {
 		fetchStepAnim = 0;
@@ -426,52 +489,76 @@ int PackageListView::Render() {
 			App->Graph->drawText(ohno, App->Res->robotoFont, ((ScreenWidth / 2) - (ohnoSize.width / 2)), ((ScreenHeight / 2) - (ohnoSize.height / 2)), dark, white);
 		}
 
+		// Draw footer background and border
+		App->Graph->drawRectangle(0, ScreenHeight - FOOTER_SIZE, ScreenWidth, FOOTER_SIZE, dark);
+		App->Graph->drawRectangle(BORDER_X, ScreenHeight - FOOTER_SIZE + 5, ScreenWidth - (BORDER_X * 2), 5, white);
+
+		App->Graph->setFontSize(App->Res->robotoFont, FOOTER_TEXT_SIZE);
+
+		if (onError) {
+			char returnText[255] = "Return";
+			FontSize returnSize;
+			App->Graph->getTextSize(returnText, App->Res->robotoFont, &returnSize);
+
+			int icon_width = returnSize.width + FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
+
+			int icon_x = (ScreenWidth - BORDER_X) - icon_width;
+			int icon_y = (ScreenHeight - FOOTER_SIZE + 5) + FOOTER_BORDER_Y;
+			int text_y = icon_y + ((FOOTER_ICON_SIZE / 2) - (returnSize.height / 2));
+
+			App->Graph->drawSizedPNG(&App->Res->circle, icon_x, icon_y, FOOTER_ICON_SIZE, FOOTER_ICON_SIZE);
+			icon_x += FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
+			App->Graph->drawText(returnText, App->Res->robotoFont, icon_x, text_y, dark, white);
+		}
+		else {
+			char returnMenu[255] = "Return";
+			char select[255] = "Select";
+			char refresh[255] = "Refresh";
+			char search[255] = "Search";
+
+			FontSize returnMenuSize;
+			FontSize selectSize;
+			FontSize refreshSize;
+			FontSize searchSize;
+
+			App->Graph->getTextSize(returnMenu, App->Res->robotoFont, &returnMenuSize);
+			App->Graph->getTextSize(select, App->Res->robotoFont, &selectSize);
+			App->Graph->getTextSize(refresh, App->Res->robotoFont, &refreshSize);
+			App->Graph->getTextSize(search, App->Res->robotoFont, &searchSize);
+
+			int icon_width = (selectSize.width + returnMenuSize.width + refreshSize.width + searchSize.width) + (5 * FOOTER_ICON_SIZE) + (5 * FOOTER_TEXT_BORDER);
+
+			int icon_x = (ScreenWidth - BORDER_X) - icon_width;
+			int icon_y = (ScreenHeight - FOOTER_SIZE + 5) + FOOTER_BORDER_Y;
+			int text_y = icon_y + ((FOOTER_ICON_SIZE / 2) - (returnMenuSize.height / 2));
+
+			App->Graph->drawSizedPNG(&App->Res->cross, icon_x, icon_y, FOOTER_ICON_SIZE, FOOTER_ICON_SIZE);
+			icon_x += FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
+			App->Graph->drawText(select, App->Res->robotoFont, icon_x, text_y, dark, white);
+			icon_x += selectSize.width + FOOTER_TEXT_BORDER;
+			App->Graph->drawSizedPNG(&App->Res->circle, icon_x, icon_y, FOOTER_ICON_SIZE, FOOTER_ICON_SIZE);
+			icon_x += FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
+			App->Graph->drawText(returnMenu, App->Res->robotoFont, icon_x, text_y, dark, white);
+			icon_x += returnMenuSize.width + FOOTER_TEXT_SIZE;
+			App->Graph->drawSizedPNG(&App->Res->square, icon_x, icon_y, FOOTER_ICON_SIZE, FOOTER_ICON_SIZE);
+			icon_x += FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
+			App->Graph->drawText(refresh, App->Res->robotoFont, icon_x, text_y, dark, white);
+			icon_x += refreshSize.width + FOOTER_TEXT_SIZE;
+			App->Graph->drawSizedPNG(&App->Res->triangle, icon_x, icon_y, FOOTER_ICON_SIZE, FOOTER_ICON_SIZE);
+			icon_x += FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
+			App->Graph->drawText(search, App->Res->robotoFont, icon_x, text_y, dark, white);
+
+			// Draw page number
+			FontSize pageSize;
+			App->Graph->getTextSize(currentPageStr, App->Res->robotoFont, &pageSize);
+			App->Graph->drawText(currentPageStr, App->Res->robotoFont, BORDER_X, text_y, dark, white);
+		}
+
+		App->Graph->setFontSize(App->Res->robotoFont, DEFAULT_FONT_SIZE);
+
 		// Unlock the mutex
 		scePthreadMutexUnlock(&fetch_mtx);
 	}
-
-	// Draw footer background and border
-	App->Graph->drawRectangle(0, ScreenHeight - FOOTER_SIZE, ScreenWidth, FOOTER_SIZE, dark);
-	App->Graph->drawRectangle(BORDER_X, ScreenHeight - FOOTER_SIZE + 5, ScreenWidth - (BORDER_X * 2), 5, white);
-
-	App->Graph->setFontSize(App->Res->robotoFont, FOOTER_TEXT_SIZE);
-
-	char returnMenu[255] = "Return";
-	char select[255] = "Select";
-	char refresh[255] = "Refresh";
-
-	FontSize returnMenuSize;
-	FontSize selectSize;
-	FontSize refreshSize;
-
-	App->Graph->getTextSize(returnMenu, App->Res->robotoFont, &returnMenuSize);
-	App->Graph->getTextSize(select, App->Res->robotoFont, &selectSize);
-	App->Graph->getTextSize(refresh, App->Res->robotoFont, &refreshSize);
-
-	int icon_width = (selectSize.width + returnMenuSize.width + refreshSize.width) + (3 * FOOTER_ICON_SIZE) + (4 * FOOTER_TEXT_BORDER);
-
-	int icon_x = (ScreenWidth - BORDER_X) - icon_width;
-	int icon_y = (ScreenHeight - FOOTER_SIZE + 5) + FOOTER_BORDER_Y;
-	int text_y = icon_y + ((FOOTER_ICON_SIZE / 2) - (returnMenuSize.height / 2));
-	
-	App->Graph->drawSizedPNG(&App->Res->cross, icon_x, icon_y, FOOTER_ICON_SIZE, FOOTER_ICON_SIZE);
-	icon_x += FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
-	App->Graph->drawText(select, App->Res->robotoFont, icon_x, text_y, dark, white);
-	icon_x += selectSize.width + FOOTER_TEXT_BORDER;
-	App->Graph->drawSizedPNG(&App->Res->circle, icon_x, icon_y, FOOTER_ICON_SIZE, FOOTER_ICON_SIZE);
-	icon_x += FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
-	App->Graph->drawText(returnMenu, App->Res->robotoFont, icon_x, text_y, dark, white);
-	icon_x += returnMenuSize.width + FOOTER_TEXT_SIZE;
-	App->Graph->drawSizedPNG(&App->Res->square, icon_x, icon_y, FOOTER_ICON_SIZE, FOOTER_ICON_SIZE);
-	icon_x += FOOTER_ICON_SIZE + FOOTER_TEXT_BORDER;
-	App->Graph->drawText(refresh, App->Res->robotoFont, icon_x, text_y, dark, white);
-
-	// Draw page number
-	FontSize pageSize;
-	App->Graph->getTextSize(currentPageStr, App->Res->robotoFont, &pageSize);
-	App->Graph->drawText(currentPageStr, App->Res->robotoFont, BORDER_X, text_y, dark, white);
-
-	App->Graph->setFontSize(App->Res->robotoFont, DEFAULT_FONT_SIZE);
 
 	return 0;
 }

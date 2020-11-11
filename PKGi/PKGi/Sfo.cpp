@@ -16,7 +16,7 @@ Sfo::Sfo(void* buffer, size_t sfo_len) {
 			printf("Sfo: Unable to malloc !\n");
 			return;
 		}
-		
+	
 		memcpy(sfo_buffer, buffer, sfo_len);
 	}
 }

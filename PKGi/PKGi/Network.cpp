@@ -52,9 +52,12 @@ Request* Network::CreateRequest(const char* url, int method) {
 	request->reqId = sceHttpCreateRequestWithURL(request->connId, method, url, 0);
 	if (request->reqId < 0) {
 		CleanupRequest(request);
-		printf("Network: Bad request id (0x%08x)\n", request->reqId);
+		printf("Network: Bad request id (0x%08x)\n", request->reqId); // 0x804311fe
 		return nullptr;
 	}
+
+	// Max timeout : 5 seconds for reliability
+	sceHttpSetConnectTimeOut(request->reqId, 5000000);
 
 	return request;
 }

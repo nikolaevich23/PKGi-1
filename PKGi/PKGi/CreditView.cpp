@@ -71,7 +71,7 @@ int CreditView::Render() {
 	App->Graph->drawRectangle(BORDER_X, HEADER_SIZE - 5, ScreenWidth - (BORDER_X * 2), 5, white);
 
 	FontSize textSize;
-	char creditText[150] = "Credit\nTheoryWrong : Application\nOpenOrbis Team\nTODO ...\nBETA BUILD";
+	char creditText[300] = "TheoryWrong : Application\n\n0x199: API Help\n\nFlatZ: Writeup for PKG\n\nOpenOrbis Team: Mira & Toolchain\n\nPbhogan: TinyJson\n\nFreepik: Package icon\n\nThis is a beta build.";
 	App->Graph->getTextSize(creditText, App->Res->robotoFont, &textSize);
 	App->Graph->drawText(creditText, App->Res->robotoFont, (ScreenWidth / 2) - (textSize.width / 2), (ScreenHeight / 2) - (textSize.height / 2), bgColor, fgColor);
 

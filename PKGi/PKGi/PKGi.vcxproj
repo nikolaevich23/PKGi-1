@@ -70,6 +70,7 @@ del /s /q /f $(IntDir)\*.oelf</NMakeCleanCommandLine>
     <ClCompile Include="build.bat" />
     <ClCompile Include="PackageListView.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="Pkg.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="Sfo.cpp" />
     <ClCompile Include="SourcesView.cpp" />
@@ -79,12 +80,14 @@ del /s /q /f $(IntDir)\*.oelf</NMakeCleanCommandLine>
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="AppInstaller.h" />
+    <ClInclude Include="Common.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CreditView.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Mira.h" />
     <ClInclude Include="PackageListView.h" />
     <ClInclude Include="Network.h" />
+    <ClInclude Include="Pkg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sfo.h" />
     <ClInclude Include="SourcesView.h" />

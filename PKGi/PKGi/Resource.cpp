@@ -46,6 +46,12 @@ Resource::Resource(Application* app) {
 	}
 	circle.use_alpha = false;
 
+	rc = App->Graph->loadPNG(&add, "/app0/Add.png");
+	if (rc < 0) {
+		printf("[WARNING] Unable to load add image !\n");
+	}
+	add.use_alpha = false;
+
 	// Initialize Roboto font faces
 	rc = App->Graph->initFont(&robotoFont, "/app0/roboto.ttf", DEFAULT_FONT_SIZE);
 	if (rc != 0)
@@ -60,4 +66,9 @@ Resource::~Resource() {
 
 	App->Graph->unloadPNG(&unknown);
 	App->Graph->unloadPNG(&logo);
+	App->Graph->unloadPNG(&cross);
+	App->Graph->unloadPNG(&triangle);
+	App->Graph->unloadPNG(&square);
+	App->Graph->unloadPNG(&circle);
+	App->Graph->unloadPNG(&add);
 }

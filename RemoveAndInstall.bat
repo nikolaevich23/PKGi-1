@@ -1,2 +1,2 @@
-curl -v "http://192.168.137.81:12800/api/uninstall_game" --data "{\"title_id\":\"PKGI00001\"}"
-curl -v "http://192.168.137.81:12800/api/install" --data "{\"type\":\"direct\",\"packages\":[\"http://192.168.137.1:8080/IV0000-PKGI00001_00-YYYYYYYYYY000000.pkg\"]}"
+curl -v "http://192.168.137.199:12800/api/uninstall_game" --data "{\"title_id\":\"PKGI00001\"}"
+curl -v "http://192.168.137.199:12800/api/install" --data "{\"type\":\"direct\",\"packages\":[\"http://192.168.137.1:8080/IV0000-PKGI00001_00-YYYYYYYYYY000000.pkg\"]}"

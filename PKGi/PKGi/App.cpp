@@ -10,6 +10,11 @@
 #include "SourcesView.h"
 #include "PackageListView.h"
 
+#include <orbis/Sysmodule.h>
+
+#define SCE_SYSMDOULE_LIBIME 0x0095
+#define SCE_SYSMODULE_IME_DIALOG 0x0096
+
 Application::Application() {
 	isRunning = false;
 
@@ -26,16 +31,20 @@ Application::Application() {
 	printf("Initialize Mira");
 	Kernel = new Mira();
 
+	// Load some needed module
+	sceSysmoduleLoadModule(SCE_SYSMDOULE_LIBIME);
+	sceSysmoduleLoadModule(SCE_SYSMODULE_IME_DIALOG);
+
 	if (Kernel->isAvailable()) {
 		// Mount /data and /system into sandbox
 		Kernel->MountInSandbox("data", "/data", 511);
 		Kernel->MountInSandbox("system", "/system", 511);
 
-		// Change Auth ID by SceShellCore
-		Kernel->ChangeAuthID(SceAuthenticationId::SceShellCore);
+		// Change Auth ID by SceShellCore and give full capability
+		Kernel->ChangeAuthID(SceAuthenticationId::SceShellCore, SceCapabilites::Max);
 
 		// Initialize the AppInstaller
-		AppInst = new AppInstaller();
+		AppInst = new AppInstaller(this);
 	}
 
 	// Setup the default view

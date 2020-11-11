@@ -23,6 +23,7 @@ public:
 	Image triangle;
 	Image square;
 	Image circle;
+	Image add;
 
 	// Font faces
 	FT_Face robotoFont;
