@@ -33,12 +33,12 @@ The stuctures of the repository folder is :
 
 | Type            | Name          | Use                       |
 | --------------- | ------------- | ------------------------- |
-| **<Directory>** | pkgs          | The packages directory    |
-| **<Directory>** | refs          | The referer diirectory    |
-| **<Directory>** | icons         | The icons directory       |
-| **<File>**      | info.json     | The information json      |
-| **<File>**      | logo.png      | The source logo           |
-| **<File>**      | packages.php  | The packages list manager |
+| Directory | pkgs          | The packages directory    |
+| Directory | refs          | The referer diirectory    |
+| Directory | icons         | The icons directory       |
+| File      | info.json     | The information json      |
+| File      | logo.png      | The source logo           |
+| File      | packages.php  | The packages list manager |
 
 Inside all of the directory, the name of the files need to port the name of the unique id of the package
 ` pkgs/1.pkg .... refs/1.json .... icons/1.png `
