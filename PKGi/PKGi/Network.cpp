@@ -40,7 +40,7 @@ Request* Network::CreateRequest(const char* url, int method) {
 	}
 
 	// Disable HTTPS Certificate check
-	sceHttpsDisableOption(request->tmplId, 0x01);
+	sceHttpsDisableOption(request->tmplId, 0x80 | 0x20 | 0x01);
 
 	request->connId = sceHttpCreateConnectionWithURL(request->tmplId, url, 1);
 	if (request->connId < 0) {
