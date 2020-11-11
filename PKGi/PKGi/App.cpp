@@ -45,14 +45,14 @@ Application::Application() {
 
 		// Initialize the AppInstaller
 		AppInst = new AppInstaller(this);
+
+		// Setup the default view
+		printf("Initialize the Main View ...\n");
+
+		SourcesView* main_view = new SourcesView(this);
+		currentView = main_view;
 	}
-
-	// Setup the default view
-	printf("Initialize the Main View ...\n");
-
-	SourcesView* main_view = new SourcesView(this);
-	currentView = main_view;
-;}
+}
 
 Application::~Application() {
 	// Unmount
@@ -79,28 +79,30 @@ void Application::Update() {
 }
 
 void Application::ShowFatalReason(const char* reason) {
-	Graph->WaitFlip();
+	while (1) {
+		Graph->WaitFlip();
 
-	int ScreenHeight = Graph->GetScreenHeight();
-	int ScreenWidth = Graph->GetScreenWidth();
+		int ScreenHeight = Graph->GetScreenHeight();
+		int ScreenWidth = Graph->GetScreenWidth();
 
-	Color red = { 0xFF, 0x00, 0x00, 0xFF };
-	Color white = { 0xFF, 0xFF, 0xFF, 0xFF };
+		Color red = { 0xFF, 0x00, 0x00, 0xFF };
+		Color white = { 0xFF, 0xFF, 0xFF, 0xFF };
 
-	// Draw red background
-	Graph->drawRectangle(0, 0, ScreenWidth, ScreenHeight, red);
+		// Draw red background
+		Graph->drawRectangle(0, 0, ScreenWidth, ScreenHeight, red);
 
-	// Draw message
-	char message[255];
-	snprintf(message, 255, "PKGi is unloadable !\nReason: %s\n\nPlease close the Application.", reason);
-	FontSize messageSize;
-	Graph->setFontSize(Res->robotoFont, 54);
-	Graph->getTextSize(message, Res->robotoFont, &messageSize);
-	Graph->drawText(message, Res->robotoFont, ((ScreenWidth / 2) - (messageSize.width / 2)), ((ScreenHeight / 2) - (messageSize.height / 2)), red, white);
-	Graph->setFontSize(Res->robotoFont, DEFAULT_FONT_SIZE);
+		// Draw message
+		char message[255];
+		snprintf(message, 255, "PKGi is unloadable !\n\nReason: %s\n\n\n\nPlease close the Application.", reason);
+		FontSize messageSize;
+		Graph->setFontSize(Res->robotoFont, 45);
+		Graph->getTextSize(message, Res->robotoFont, &messageSize);
+		Graph->drawText(message, Res->robotoFont, ((ScreenWidth / 2) - (messageSize.width / 2)), ((ScreenHeight / 2) - (messageSize.height / 2)), red, white);
+		Graph->setFontSize(Res->robotoFont, DEFAULT_FONT_SIZE);
 
-	Graph->SwapBuffer(flipArgs);
-	flipArgs++;
+		Graph->SwapBuffer(flipArgs);
+		flipArgs++;
+	}
 }
 
 void Application::Render() {
